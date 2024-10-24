@@ -1,0 +1,57 @@
+services:
+  # Tomcat
+  tomcat:
+    image: bitnami/tomcat:latest
+    environment:
+      - TOMCAT_USERNAME=root
+      - TOMCAT_PASSWORD=7355608
+    links:
+      - db:mysql
+    ports:
+      - 8180:8080
+    volumes:
+      - ./tomcat:/bitnami/tomcat
+      - ./WebApp/target/WebApp.war:/bitnami/tomcat/webapps/WebApp.war
+    networks:
+      - avanzada
+
+  # Database
+  db:
+    platform: linux/x86_64
+    image: mysql:5.7
+    volumes:
+      - db_data:/var/lib/mysql
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: 7355608
+      MYSQL_DATABASE: test
+      MYSQL_PASSWORD: 7355608
+    networks:
+      - avanzada
+
+  # phpmyadmin
+  phpmyadmin:
+    depends_on:
+      - db
+    image: phpmyadmin
+    restart: always
+    ports:
+      - "8183:80"
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: 7355608
+    networks:
+      - avanzada
+
+networks:
+  avanzada:
+
+volumes:
+  db_data:
+
+# TODO
+#   1 - Reservas sistema (Desde el DAO, metodo para contar las instancias, y para obtener la siguiente instancia)
+#      1.1 - Servicio para las reservas (5 dias habiles maximo de duracion, seteado en el Servicio al momento de la carga)
+#   2 - Administrativo Interfaz, solo el CRUD de Libro (Ya esta hecho), CRUD de Editoriales y CRUD de autores
